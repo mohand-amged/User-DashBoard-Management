@@ -30,10 +30,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              'flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300',
+              'flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm text-slate-900 ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors',
+              'dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-offset-slate-900 dark:placeholder:text-slate-400 dark:focus-visible:ring-blue-500',
               hasError
-                ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-500'
-                : 'border-slate-200 focus-visible:ring-slate-950 dark:focus-visible:ring-slate-300',
+                ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-400'
+                : 'border-slate-300 focus-visible:ring-blue-500 hover:border-slate-400 dark:hover:border-slate-500',
               icon && 'pl-10',
               className
             )}
@@ -78,10 +79,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
         <textarea
           className={cn(
-            'flex min-h-[80px] w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300',
+            'flex min-h-[80px] w-full rounded-md border bg-white px-3 py-2 text-sm text-slate-900 ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-y',
+            'dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-offset-slate-900 dark:placeholder:text-slate-400 dark:focus-visible:ring-blue-500',
             hasError
-              ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-500'
-              : 'border-slate-200 focus-visible:ring-slate-950 dark:focus-visible:ring-slate-300',
+              ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-400'
+              : 'border-slate-300 focus-visible:ring-blue-500 hover:border-slate-400 dark:hover:border-slate-500',
             className
           )}
           ref={ref}
@@ -125,17 +127,18 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         )}
         <select
           className={cn(
-            'flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300',
+            'flex h-10 w-full rounded-md border bg-white px-3 py-2 text-sm text-slate-900 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors',
+            'dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:ring-offset-slate-900 dark:focus-visible:ring-blue-500',
             hasError
-              ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-500'
-              : 'border-slate-200 focus-visible:ring-slate-950 dark:focus-visible:ring-slate-300',
+              ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-400'
+              : 'border-slate-300 focus-visible:ring-blue-500 hover:border-slate-400 dark:hover:border-slate-500',
             className
           )}
           ref={ref}
           {...props}
         >
           {options.map((option) => (
-            <option key={option.value} value={option.value}>
+            <option key={option.value} value={option.value} className="text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800">
               {option.label}
             </option>
           ))}

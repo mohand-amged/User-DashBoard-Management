@@ -245,10 +245,11 @@ export const UserForm: React.FC<UserFormProps> = ({
     >
       <form onSubmit={form.handleSubmit}>
         <ModalBody>
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
             {/* Basic Information */}
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
+              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 flex items-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                 Basic Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -308,7 +309,8 @@ export const UserForm: React.FC<UserFormProps> = ({
 
             {/* Address Information */}
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
+              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                 Address Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -343,7 +345,8 @@ export const UserForm: React.FC<UserFormProps> = ({
 
             {/* Role and Status */}
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
+              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 flex items-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
                 User Settings
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -364,7 +367,8 @@ export const UserForm: React.FC<UserFormProps> = ({
 
             {/* Employment Information */}
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
+              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4 flex items-center">
+                <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
                 Employment Information
               </h4>
               <div className="space-y-4">
@@ -382,25 +386,30 @@ export const UserForm: React.FC<UserFormProps> = ({
                         value={form.values.jobTitle}
                         onChange={form.handleChange('jobTitle')}
                         onBlur={form.handleBlur('jobTitle')}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 ${
-                          form.errors.jobTitle ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                        className={`w-full h-10 px-3 py-2 border rounded-md bg-white text-slate-900 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-slate-400 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:hover:border-slate-500 ${
+                          form.errors.jobTitle ? 'border-red-500 dark:border-red-400' : 'border-slate-300 dark:border-slate-600'
                         }`}
                       >
-                        <option value="">Select a job title...</option>
+                        <option value="" className="text-slate-500 dark:text-slate-400">Select a job title...</option>
                         {availableJobTitles.map(title => (
-                          <option key={title} value={title}>{title}</option>
+                          <option key={title} value={title} className="text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800">{title}</option>
                         ))}
                       </select>
                       
                       {/* Custom job title option */}
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-slate-500">Or enter custom:</span>
-                        <Input
-                          value={availableJobTitles.includes(form.values.jobTitle) ? '' : form.values.jobTitle}
-                          onChange={(e) => form.setValue('jobTitle', e.target.value)}
-                          placeholder="Custom job title"
-                          className="flex-1"
-                        />
+                      <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                            Or enter custom:
+                          </label>
+                          <div className="flex-1">
+                            <Input
+                              value={availableJobTitles.includes(form.values.jobTitle) ? '' : form.values.jobTitle}
+                              onChange={(e) => form.setValue('jobTitle', e.target.value)}
+                              placeholder="Enter custom job title"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -418,23 +427,27 @@ export const UserForm: React.FC<UserFormProps> = ({
                   )}
                 </div>
                 
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      id="hasSalary"
-                      type="checkbox"
-                      checked={form.values.hasSalary}
-                      onChange={(e) => handleSalaryStatusChange(e.target.checked)}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="hasSalary" className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                      This user receives a salary
-                      {currentSalaryRange && (
-                        <span className="text-xs text-slate-500 ml-2">
-                          (${currentSalaryRange.min.toLocaleString()} - ${currentSalaryRange.max.toLocaleString()} typical for {form.values.role}s)
-                        </span>
-                      )}
-                    </label>
+                <div className="space-y-4">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-start space-x-3">
+                      <input
+                        id="hasSalary"
+                        type="checkbox"
+                        checked={form.values.hasSalary}
+                        onChange={(e) => handleSalaryStatusChange(e.target.checked)}
+                        className="mt-1 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:focus:ring-blue-400"
+                      />
+                      <div className="flex-1">
+                        <label htmlFor="hasSalary" className="text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                          This user receives a salary
+                        </label>
+                        {currentSalaryRange && (
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                            Typical range for {form.values.role}s: ${currentSalaryRange.min.toLocaleString()} - ${currentSalaryRange.max.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   
                   {currentSalaryRange && form.values.hasSalary && (
@@ -497,22 +510,26 @@ export const UserForm: React.FC<UserFormProps> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            loading={isLoading}
-            disabled={!form.isValid || isLoading}
-          >
-            {isEditing ? 'Update User' : 'Create User'}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 w-full">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isLoading}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={isLoading}
+              disabled={!form.isValid || isLoading}
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
+              {isEditing ? 'Update User' : 'Create User'}
+            </Button>
+          </div>
         </ModalFooter>
       </form>
     </Modal>

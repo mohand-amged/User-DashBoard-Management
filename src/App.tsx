@@ -19,20 +19,7 @@ import { DashboardLayout } from './components/layout/DashboardLayout';
 // Dashboard pages
 import { Dashboard } from './pages/Dashboard';
 import { Users } from './pages/Users';
-
-// Placeholder components
-const Analytics: React.FC = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      Analytics
-    </h1>
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
-      <p className="text-slate-600 dark:text-slate-400">
-        Analytics page coming soon!
-      </p>
-    </div>
-  </div>
-);
+import { Analytics } from './pages/Analytics';
 
 const Settings: React.FC = () => (
   <div className="p-6">

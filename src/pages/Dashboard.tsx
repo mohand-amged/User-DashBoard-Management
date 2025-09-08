@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Users, UserPlus, Activity, TrendingUp, DollarSign } from 'lucide-react';
 import { useUsers } from '../hooks/useUsers';
 import { LoadingSkeleton } from '../components/ui/Loading';
@@ -29,7 +30,13 @@ const StatCard: React.FC<StatCardProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ duration: 0.2 }}
+      className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow-lg transition-shadow duration-200"
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
@@ -54,7 +61,7 @@ const StatCard: React.FC<StatCardProps> = ({
           {icon}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -150,7 +157,14 @@ export const Dashboard: React.FC = () => {
           ))
         ) : (
           stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <StatCard {...stat} />
+            </motion.div>
           ))
         )}
       </div>

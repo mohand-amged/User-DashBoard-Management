@@ -3,6 +3,7 @@ import { Menu, Sun, Moon, Bell, Settings, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../ui/Button';
+import { NotificationCenter } from '../notifications/NotificationCenter';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -12,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -59,11 +61,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setShowNotifications(true)}
             className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 relative"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">
-              3
+            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white animate-pulse">
+              2
             </span>
           </Button>
 
@@ -133,6 +136,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </div>
         </div>
       </div>
+      
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
     </header>
   );
 };

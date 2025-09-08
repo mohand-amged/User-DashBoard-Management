@@ -62,3 +62,65 @@
 .animate-fade-out {
   animation: fadeOut 150ms ease-in;
 }
+
+/* Ensure proper theme transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Root theme variables */
+:root {
+  --background: 255 255 255;
+  --foreground: 15 23 42;
+  --muted: 248 250 252;
+  --muted-foreground: 100 116 139;
+  --border: 226 232 240;
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+}
+
+.dark {
+  --background: 15 23 42;
+  --foreground: 248 250 252;
+  --muted: 30 41 59;
+  --muted-foreground: 148 163 184;
+  --border: 51 65 85;
+  --primary: 59 130 246;
+  --primary-foreground: 255 255 255;
+}
+
+/* Fix any remaining contrast issues */
+.dark .text-slate-900 {
+  color: rgb(248 250 252) !important;
+}
+
+.dark .text-slate-800 {
+  color: rgb(226 232 240) !important;
+}
+
+.dark .bg-white {
+  background-color: rgb(30 41 59) !important;
+}
+
+/* Ensure buttons have proper contrast */
+.dark button:not([class*="bg-"]) {
+  color: rgb(248 250 252);
+}
+
+.dark button:not([class*="bg-"]):hover {
+  background-color: rgb(51 65 85);
+}
+
+/* Fix form inputs in dark mode */
+.dark input, .dark select, .dark textarea {
+  background-color: rgb(30 41 59);
+  border-color: rgb(51 65 85);
+  color: rgb(248 250 252);
+}
+
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+  border-color: rgb(59 130 246);
+  ring-color: rgb(59 130 246);
+}

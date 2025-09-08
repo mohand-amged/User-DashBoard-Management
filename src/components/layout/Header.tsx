@@ -49,11 +49,12 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             size="icon"
             onClick={toggleTheme}
             className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
-            {theme === 'light' ? (
-              <Moon className="h-5 w-5" />
-            ) : (
+            {theme === 'dark' ? (
               <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
             )}
           </Button>
 

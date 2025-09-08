@@ -188,7 +188,7 @@ export const Users: React.FC = (_className) => {
             onClick={() => setShowFilters(!showFilters)}
             className={cn(
               "sm:hidden",
-              activeFiltersCount > 0 && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-300"
+              activeFiltersCount > 0 && "bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-200 dark:hover:bg-blue-900/50"
             )}
           >
             <Filter className="h-4 w-4 mr-2" />

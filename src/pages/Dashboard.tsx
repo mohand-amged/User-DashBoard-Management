@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Activity, TrendingUp } from 'lucide-react';
+import { Users, UserPlus, Activity, TrendingUp, DollarSign } from 'lucide-react';
 import { useUsers } from '../hooks/useUsers';
 import { LoadingSkeleton } from '../components/ui/Loading';
 import { cn } from '../lib/utils';
@@ -74,14 +74,10 @@ export const Dashboard: React.FC = () => {
   // Calculate stats
   const totalUsers = pagination.totalItems;
   const activeUsers = users.filter(u => u.status === 'active').length;
-  const adminUsers = users.filter(u => u.role === 'admin').length;
-  const recentUsers = users.filter(u => {
-    if (!u.createdAt) return false;
-    const created = new Date(u.createdAt);
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return created > weekAgo;
-  }).length;
+  const salariedUsers = users.filter(u => u.hasSalary).length;
+  const averageSalary = users.filter(u => u.hasSalary).length > 0 
+    ? Math.round(users.filter(u => u.hasSalary).reduce((sum, u) => sum + u.salary, 0) / users.filter(u => u.hasSalary).length)
+    : 0;
 
   const stats = [
     {
@@ -101,17 +97,19 @@ export const Dashboard: React.FC = () => {
       color: 'green' as const,
     },
     {
-      title: 'Admin Users',
-      value: adminUsers,
-      icon: <TrendingUp className="h-6 w-6" />,
+      title: 'Salaried Users',
+      value: salariedUsers,
+      change: `${Math.round((salariedUsers / totalUsers) * 100)}%`,
+      trend: 'up' as const,
+      icon: <DollarSign className="h-6 w-6" />,
       color: 'purple' as const,
     },
     {
-      title: 'New This Week',
-      value: recentUsers,
-      change: '+8%',
+      title: 'Avg. Salary',
+      value: averageSalary > 0 ? `$${averageSalary.toLocaleString()}` : 'N/A',
+      change: '+3%',
       trend: 'up' as const,
-      icon: <UserPlus className="h-6 w-6" />,
+      icon: <TrendingUp className="h-6 w-6" />,
       color: 'orange' as const,
     },
   ];

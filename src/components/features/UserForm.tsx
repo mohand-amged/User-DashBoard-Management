@@ -29,6 +29,9 @@ const initialFormData: UserFormData = {
   },
   role: 'user',
   status: 'active',
+  jobTitle: '',
+  salary: 0,
+  hasSalary: false,
 };
 
 const roleOptions = [
@@ -71,6 +74,9 @@ export const UserForm: React.FC<UserFormProps> = ({
       },
       role: user.role || 'user',
       status: user.status || 'active',
+      jobTitle: user.jobTitle || '',
+      salary: user.salary || 0,
+      hasSalary: user.hasSalary || false,
     };
   };
 
@@ -125,6 +131,19 @@ export const UserForm: React.FC<UserFormProps> = ({
       validators.pattern(/^[0-9]{5}(-[0-9]{4})?$/, 'Invalid zipcode format')
     )(values.address.zipcode);
     if (zipcodeError) errors['address.zipcode'] = zipcodeError;
+
+    // Job title validation
+    const jobTitleError = validators.required('Job title is required')(values.jobTitle);
+    if (jobTitleError) errors.jobTitle = jobTitleError;
+
+    // Salary validation (only if hasSalary is true)
+    if (values.hasSalary) {
+      const salaryError = composeValidators(
+        validators.required('Salary is required when salary status is enabled'),
+        validators.min(0, 'Salary must be a positive number')
+      )(values.salary);
+      if (salaryError) errors.salary = salaryError;
+    }
 
     return errors;
   };
@@ -274,6 +293,55 @@ export const UserForm: React.FC<UserFormProps> = ({
                   onChange={form.handleChange('status')}
                   options={statusOptions}
                 />
+              </div>
+            </div>
+
+            {/* Employment Information */}
+            <div>
+              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
+                Employment Information
+              </h4>
+              <div className="space-y-4">
+                <Input
+                  label="Job Title"
+                  value={form.values.jobTitle}
+                  onChange={form.handleChange('jobTitle')}
+                  onBlur={form.handleBlur('jobTitle')}
+                  error={form.errors.jobTitle}
+                  placeholder="Enter job title"
+                />
+                
+                <div className="flex items-center space-x-3">
+                  <input
+                    id="hasSalary"
+                    type="checkbox"
+                    checked={form.values.hasSalary}
+                    onChange={(e) => {
+                      form.setValue('hasSalary', e.target.checked);
+                      if (!e.target.checked) {
+                        form.setValue('salary', 0);
+                      }
+                    }}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="hasSalary" className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                    This user receives a salary
+                  </label>
+                </div>
+
+                {form.values.hasSalary && (
+                  <Input
+                    label="Annual Salary (USD)"
+                    type="number"
+                    value={form.values.salary.toString()}
+                    onChange={(e) => form.setValue('salary', parseFloat(e.target.value) || 0)}
+                    onBlur={form.handleBlur('salary')}
+                    error={form.errors.salary}
+                    placeholder="Enter annual salary"
+                    min="0"
+                    step="1000"
+                  />
+                )}
               </div>
             </div>
           </div>

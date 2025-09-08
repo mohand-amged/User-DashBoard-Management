@@ -23,6 +23,9 @@ export interface User {
   avatar?: string;
   status?: 'active' | 'inactive';
   role?: 'admin' | 'user' | 'manager';
+  jobTitle: string;
+  salary: number;
+  hasSalary: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -43,6 +46,9 @@ export interface UserFormData {
   };
   role?: 'admin' | 'user' | 'manager';
   status?: 'active' | 'inactive';
+  jobTitle: string;
+  salary: number;
+  hasSalary: boolean;
 }
 
 export interface UserFilters {

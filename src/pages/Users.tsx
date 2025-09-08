@@ -129,6 +129,9 @@ export const Users: React.FC = (_className) => {
       name: user.name,
       username: user.username,
       email: user.email,
+      jobTitle: user.jobTitle,
+      salary: user.hasSalary ? user.salary : 'No salary',
+      hasSalary: user.hasSalary ? 'Yes' : 'No',
       phone: user.phone,
       website: user.website,
       company: user.company.name,
@@ -285,8 +288,8 @@ export const Users: React.FC = (_className) => {
           {loading ? (
             <TableSkeleton 
               rows={10} 
-              columns={7} 
-              headers={['', 'User', 'Email', 'Role', 'Status', 'Created', 'Actions']} 
+              columns={9} 
+              headers={['', 'User', 'Email', 'Job Title', 'Salary', 'Role', 'Status', 'Created', 'Actions']} 
             />
           ) : users.length === 0 ? (
             <div className="text-center py-12">
@@ -333,6 +336,20 @@ export const Users: React.FC = (_className) => {
                     onSort={() => handleSort('email')}
                   >
                     Email
+                  </TableHead>
+                  <TableHead 
+                    sortable
+                    sortDirection={filters.sortBy === 'jobTitle' ? filters.sortOrder : null}
+                    onSort={() => handleSort('jobTitle')}
+                  >
+                    Job Title
+                  </TableHead>
+                  <TableHead 
+                    sortable
+                    sortDirection={filters.sortBy === 'salary' ? filters.sortOrder : null}
+                    onSort={() => handleSort('salary')}
+                  >
+                    Salary
                   </TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
@@ -381,6 +398,29 @@ export const Users: React.FC = (_className) => {
                       <div className="text-sm text-slate-500 dark:text-slate-400">
                         {user.company.name}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-slate-900 dark:text-slate-100">
+                        {user.jobTitle}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-slate-900 dark:text-slate-100">
+                        {user.hasSalary ? (
+                          <span className="font-medium">
+                            ${user.salary.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 dark:text-slate-400 italic">
+                            No salary
+                          </span>
+                        )}
+                      </div>
+                      {user.hasSalary && (
+                        <div className="text-sm text-green-600 dark:text-green-400">
+                          Salaried
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className={cn(

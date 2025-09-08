@@ -267,6 +267,22 @@ export const validators = {
       return message;
     }
   },
+
+  min: (min: number, message?: string) => (value: number) => {
+    if (value === undefined || value === null) return '';
+    if (value < min) {
+      return message || `Value must be at least ${min}`;
+    }
+    return '';
+  },
+
+  max: (max: number, message?: string) => (value: number) => {
+    if (value === undefined || value === null) return '';
+    if (value > max) {
+      return message || `Value must be at most ${max}`;
+    }
+    return '';
+  },
 };
 
 // Compose multiple validators

@@ -27,12 +27,22 @@ class ApiService {
   }
 
   private enhanceUser(user: any): User {
+    // Generate job titles based on user data
+    const jobTitles = [
+      'Software Engineer', 'Product Manager', 'Designer', 'Data Analyst',
+      'Marketing Specialist', 'Sales Representative', 'HR Manager', 'DevOps Engineer',
+      'Business Analyst', 'Customer Success Manager', 'Financial Analyst', 'Quality Assurance'
+    ];
+    
     return {
       ...user,
       avatar: generateAvatarUrl(user.name),
-      status: Math.random() > 0.3 ? 'active' : 'inactive',
-      role: ['admin', 'user', 'manager'][Math.floor(Math.random() * 3)] as 'admin' | 'user' | 'manager',
-      createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+      status: user.status || (Math.random() > 0.3 ? 'active' : 'inactive'),
+      role: user.role || (['admin', 'user', 'manager'][Math.floor(Math.random() * 3)] as 'admin' | 'user' | 'manager'),
+      jobTitle: user.jobTitle || jobTitles[Math.floor(Math.random() * jobTitles.length)],
+      salary: user.salary || Math.floor(Math.random() * 150000) + 30000, // Random salary between 30k-180k
+      hasSalary: user.hasSalary !== undefined ? user.hasSalary : Math.random() > 0.2, // 80% chance of having salary
+      createdAt: user.createdAt || new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date().toISOString(),
     };
   }
@@ -106,6 +116,9 @@ class ApiService {
         id: Date.now(), // Generate unique ID for created user
         role: userData.role || 'user',
         status: userData.status || 'active',
+        jobTitle: userData.jobTitle,
+        salary: userData.salary,
+        hasSalary: userData.hasSalary,
       });
     } catch (error) {
       console.error('Error creating user:', error);
@@ -147,6 +160,9 @@ class ApiService {
         ...response,
         role: userData.role,
         status: userData.status,
+        jobTitle: userData.jobTitle,
+        salary: userData.salary,
+        hasSalary: userData.hasSalary,
         updatedAt: new Date().toISOString(),
       });
     } catch (error) {

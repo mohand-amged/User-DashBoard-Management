@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, UserPlus, Activity, TrendingUp, DollarSign } from 'lucide-react';
+import { Users, UserPlus, Activity, TrendingUp, DollarSign, Download } from 'lucide-react';
 import { useUsers } from '../hooks/useUsers';
 import { LoadingSkeleton } from '../components/ui/Loading';
 import { cn } from '../lib/utils';
@@ -68,6 +69,46 @@ const StatCard: React.FC<StatCardProps> = ({
 export const Dashboard: React.FC = () => {
   const { users, loading, pagination } = useUsers();
   const [lastUpdated, setLastUpdated] = useState<string>(() => new Date().toLocaleString());
+  const navigate = useNavigate();
+
+  // Quick action handlers
+  const handleAddUser = () => {
+    navigate('/users', { state: { openAddForm: true } });
+  };
+
+  const handleViewAnalytics = () => {
+    navigate('/analytics');
+  };
+
+  const handleExportData = () => {
+    // Export current users data as CSV
+    const csvData = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      jobTitle: user.jobTitle,
+      salary: user.hasSalary ? user.salary : 'N/A',
+      hasSalary: user.hasSalary ? 'Yes' : 'No',
+      role: user.role,
+      status: user.status,
+      company: user.company.name,
+    }));
+    
+    const csvContent = [
+      Object.keys(csvData[0] || {}).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   // Update last updated time periodically
   useEffect(() => {
@@ -177,39 +218,57 @@ export const Dashboard: React.FC = () => {
             Quick Actions
           </h2>
           <div className="space-y-3">
-            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleAddUser}
+              className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-all duration-200 hover:shadow-md"
+            >
               <UserPlus className="h-5 w-5 text-blue-600 mr-3" />
               <div>
                 <div className="font-medium text-slate-900 dark:text-slate-100">
                   Add New User
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Create a new user account
+                  Create a new employee record
                 </div>
               </div>
-            </button>
-            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <Activity className="h-5 w-5 text-green-600 mr-3" />
-              <div>
-                <div className="font-medium text-slate-900 dark:text-slate-100">
-                  View User Activity
-                </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Monitor user engagement
-                </div>
-              </div>
-            </button>
-            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-              <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+            </motion.button>
+            
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleViewAnalytics}
+              className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-all duration-200 hover:shadow-md"
+            >
+              <TrendingUp className="h-5 w-5 text-green-600 mr-3" />
               <div>
                 <div className="font-medium text-slate-900 dark:text-slate-100">
                   View Analytics
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Analyze user trends
+                  Analyze workforce trends
                 </div>
               </div>
-            </button>
+            </motion.button>
+            
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleExportData}
+              disabled={users.length === 0}
+              className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="h-5 w-5 text-purple-600 mr-3" />
+              <div>
+                <div className="font-medium text-slate-900 dark:text-slate-100">
+                  Export Data
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Download user data as CSV
+                </div>
+              </div>
+            </motion.button>
           </div>
         </div>
 

@@ -40,6 +40,37 @@ const roleOptions = [
   { value: 'manager', label: 'Manager' },
 ];
 
+const jobTitlesByRole = {
+  admin: [
+    'System Administrator',
+    'IT Manager',
+    'Security Administrator',
+    'Database Administrator'
+  ],
+  manager: [
+    'Project Manager',
+    'Team Lead',
+    'Department Manager',
+    'Operations Manager',
+    'Product Manager'
+  ],
+  user: [
+    'Software Engineer',
+    'Data Analyst',
+    'Designer',
+    'Marketing Specialist',
+    'Sales Representative',
+    'Customer Support',
+    'Content Writer'
+  ]
+};
+
+const salaryRangesByRole = {
+  admin: { min: 80000, max: 150000, default: 120000 },
+  manager: { min: 70000, max: 130000, default: 95000 },
+  user: { min: 40000, max: 100000, default: 65000 }
+};
+
 const statusOptions = [
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
@@ -157,6 +188,41 @@ export const UserForm: React.FC<UserFormProps> = ({
       form.reset();
     },
   });
+
+  // Handle role change to update job titles and salary suggestions
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRole = e.target.value as 'admin' | 'manager' | 'user';
+    form.handleChange('role')(e);
+    
+    // Clear job title when role changes
+    form.setValue('jobTitle', '');
+    
+    // Auto-suggest salary based on role if salary is enabled
+    if (form.values.hasSalary && salaryRangesByRole[newRole]) {
+      form.setValue('salary', salaryRangesByRole[newRole].default);
+    }
+  };
+
+  // Handle salary status change
+  const handleSalaryStatusChange = (enabled: boolean) => {
+    form.setValue('hasSalary', enabled);
+    if (enabled && form.values.role && salaryRangesByRole[form.values.role as keyof typeof salaryRangesByRole]) {
+      const roleRange = salaryRangesByRole[form.values.role as keyof typeof salaryRangesByRole];
+      form.setValue('salary', roleRange.default);
+    } else if (!enabled) {
+      form.setValue('salary', 0);
+    }
+  };
+
+  // Get available job titles based on selected role
+  const availableJobTitles = form.values.role 
+    ? jobTitlesByRole[form.values.role as keyof typeof jobTitlesByRole] || []
+    : [];
+
+  // Get salary range for current role
+  const currentSalaryRange = form.values.role && salaryRangesByRole[form.values.role as keyof typeof salaryRangesByRole]
+    ? salaryRangesByRole[form.values.role as keyof typeof salaryRangesByRole]
+    : null;
 
   const handleClose = () => {
     onClose();
@@ -284,7 +350,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                 <Select
                   label="Role"
                   value={form.values.role}
-                  onChange={form.handleChange('role')}
+                  onChange={handleRoleChange}
                   options={roleOptions}
                 />
                 <Select
@@ -302,45 +368,128 @@ export const UserForm: React.FC<UserFormProps> = ({
                 Employment Information
               </h4>
               <div className="space-y-4">
-                <Input
-                  label="Job Title"
-                  value={form.values.jobTitle}
-                  onChange={form.handleChange('jobTitle')}
-                  onBlur={form.handleBlur('jobTitle')}
-                  error={form.errors.jobTitle}
-                  placeholder="Enter job title"
-                />
-                
-                <div className="flex items-center space-x-3">
-                  <input
-                    id="hasSalary"
-                    type="checkbox"
-                    checked={form.values.hasSalary}
-                    onChange={(e) => {
-                      form.setValue('hasSalary', e.target.checked);
-                      if (!e.target.checked) {
-                        form.setValue('salary', 0);
-                      }
-                    }}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="hasSalary" className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    This user receives a salary
+                {/* Job Title Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Job Title {form.values.role && (
+                      <span className="text-xs text-slate-500">({form.values.role} positions)</span>
+                    )}
                   </label>
+                  
+                  {form.values.role && availableJobTitles.length > 0 ? (
+                    <div className="space-y-2">
+                      <select
+                        value={form.values.jobTitle}
+                        onChange={form.handleChange('jobTitle')}
+                        onBlur={form.handleBlur('jobTitle')}
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 ${
+                          form.errors.jobTitle ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                        }`}
+                      >
+                        <option value="">Select a job title...</option>
+                        {availableJobTitles.map(title => (
+                          <option key={title} value={title}>{title}</option>
+                        ))}
+                      </select>
+                      
+                      {/* Custom job title option */}
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-slate-500">Or enter custom:</span>
+                        <Input
+                          value={availableJobTitles.includes(form.values.jobTitle) ? '' : form.values.jobTitle}
+                          onChange={(e) => form.setValue('jobTitle', e.target.value)}
+                          placeholder="Custom job title"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <Input
+                      value={form.values.jobTitle}
+                      onChange={form.handleChange('jobTitle')}
+                      onBlur={form.handleBlur('jobTitle')}
+                      placeholder={form.values.role ? 'Enter job title' : 'Select a role first'}
+                      disabled={!form.values.role}
+                    />
+                  )}
+                  
+                  {form.errors.jobTitle && (
+                    <p className="mt-1 text-sm text-red-600">{form.errors.jobTitle}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="hasSalary"
+                      type="checkbox"
+                      checked={form.values.hasSalary}
+                      onChange={(e) => handleSalaryStatusChange(e.target.checked)}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="hasSalary" className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      This user receives a salary
+                      {currentSalaryRange && (
+                        <span className="text-xs text-slate-500 ml-2">
+                          (${currentSalaryRange.min.toLocaleString()} - ${currentSalaryRange.max.toLocaleString()} typical for {form.values.role}s)
+                        </span>
+                      )}
+                    </label>
+                  </div>
+                  
+                  {currentSalaryRange && form.values.hasSalary && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-blue-700 dark:text-blue-300 font-medium">
+                          💡 Suggested range for {form.values.role}:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => form.setValue('salary', currentSalaryRange.default)}
+                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          Use suggested: ${currentSalaryRange.default.toLocaleString()}
+                        </button>
+                      </div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        Range: ${currentSalaryRange.min.toLocaleString()} - ${currentSalaryRange.max.toLocaleString()}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {form.values.hasSalary && (
-                  <Input
-                    label="Annual Salary (USD)"
-                    type="number"
-                    value={form.values.salary.toString()}
-                    onChange={(e) => form.setValue('salary', parseFloat(e.target.value) || 0)}
-                    onBlur={form.handleBlur('salary')}
-                    error={form.errors.salary}
-                    placeholder="Enter annual salary"
-                    min="0"
-                    step="1000"
-                  />
+                  <div>
+                    <Input
+                      label={`Annual Salary (USD)${currentSalaryRange ? ` • Range: $${currentSalaryRange.min.toLocaleString()} - $${currentSalaryRange.max.toLocaleString()}` : ''}`}
+                      type="number"
+                      value={form.values.salary.toString()}
+                      onChange={(e) => form.setValue('salary', parseFloat(e.target.value) || 0)}
+                      onBlur={form.handleBlur('salary')}
+                      error={form.errors.salary}
+                      placeholder={currentSalaryRange ? `Suggested: $${currentSalaryRange.default.toLocaleString()}` : "Enter annual salary"}
+                      min={currentSalaryRange?.min.toString() || "0"}
+                      max={currentSalaryRange?.max.toString()}
+                      step="1000"
+                    />
+                    {currentSalaryRange && form.values.salary > 0 && (
+                      <div className="mt-1 text-xs">
+                        {form.values.salary < currentSalaryRange.min ? (
+                          <span className="text-orange-600 dark:text-orange-400">
+                            ⚠️ Below typical range for {form.values.role} role
+                          </span>
+                        ) : form.values.salary > currentSalaryRange.max ? (
+                          <span className="text-orange-600 dark:text-orange-400">
+                            ⚠️ Above typical range for {form.values.role} role
+                          </span>
+                        ) : (
+                          <span className="text-green-600 dark:text-green-400">
+                            ✓ Within typical range for {form.values.role} role
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

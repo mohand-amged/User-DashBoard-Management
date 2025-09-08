@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Search, 
   Plus, 
@@ -32,6 +33,17 @@ export const Users: React.FC = (_className) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showUserForm, setShowUserForm] = useState(false);
+  const location = useLocation();
+
+  // Auto-open add form if navigated from dashboard quick action
+  useEffect(() => {
+    if (location.state?.openAddForm) {
+      setShowUserForm(true);
+      setEditingUser(null);
+      // Clear the state to prevent reopening on subsequent visits
+      window.history.replaceState(null, '');
+    }
+  }, [location.state]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);

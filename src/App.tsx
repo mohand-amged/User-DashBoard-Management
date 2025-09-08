@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 // Import components
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -38,8 +39,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ToastProvider>
-          <Router>
+        <NotificationProvider>
+          <ToastProvider>
+            <Router>
             <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
               <Routes>
                 {/* Public routes */}
@@ -68,8 +70,9 @@ function App() {
               {/* Toast notifications */}
               <ToastContainer />
             </div>
-          </Router>
-        </ToastProvider>
+            </Router>
+          </ToastProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

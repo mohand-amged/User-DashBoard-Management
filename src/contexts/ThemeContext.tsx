@@ -22,37 +22,58 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Function to apply theme to document
   const applyTheme = (newTheme: 'light' | 'dark') => {
     const root = document.documentElement;
+    
+    // Remove both classes first
     root.classList.remove('light', 'dark');
+    
+    // Add the new theme class
     root.classList.add(newTheme);
     
-    // Also set the data attribute for better CSS support
+    // Set data attribute for CSS support
     root.setAttribute('data-theme', newTheme);
+    
+    console.log(`✅ Theme applied: ${newTheme}`, {
+      classList: Array.from(root.classList),
+      dataTheme: root.getAttribute('data-theme')
+    });
   };
 
   useEffect(() => {
     // Check for saved theme preference
-    const savedTheme = getLocalStorage<'light' | 'dark' | null>('theme', null as 'light' | 'dark' | null);
+    const savedTheme = getLocalStorage<'light' | 'dark'>('theme', 'light');
     
-    let initialTheme: 'light' | 'dark';
+    let initialTheme: 'light' | 'dark' = 'light';
     
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+    if (savedTheme === 'dark' || savedTheme === 'light') {
       initialTheme = savedTheme;
     } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      initialTheme = prefersDark ? 'dark' : 'light';
-      // Save the detected preference
-      setLocalStorage('theme', initialTheme);
+      // Check system preference as fallback
+      try {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        initialTheme = prefersDark ? 'dark' : 'light';
+      } catch (e) {
+        console.log('System theme detection failed, using light theme');
+        initialTheme = 'light';
+      }
     }
     
+    console.log('🎨 Initializing theme:', initialTheme);
     setTheme(initialTheme);
     applyTheme(initialTheme);
   }, []);
 
   const toggleTheme = () => {
+    console.log('🔄 Theme toggle triggered. Current:', theme);
     const newTheme = theme === 'light' ? 'dark' : 'light';
+    console.log('🔄 Switching to:', newTheme);
+    
+    // Update state first
     setTheme(newTheme);
+    
+    // Save to localStorage
     setLocalStorage('theme', newTheme);
+    
+    // Apply to DOM
     applyTheme(newTheme);
   };
 

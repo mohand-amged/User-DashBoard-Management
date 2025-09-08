@@ -5,6 +5,7 @@ import { Users, UserPlus, Activity, TrendingUp, DollarSign, Download } from 'luc
 import { useUsers } from '../hooks/useUsers';
 import { LoadingSkeleton } from '../components/ui/Loading';
 import { cn } from '../lib/utils';
+import { ThemeTest } from '../components/debug/ThemeTest';
 
 interface StatCardProps {
   title: string;
@@ -322,6 +323,9 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Theme Test Component - Remove in production */}
+      {process.env.NODE_ENV === 'development' && <ThemeTest />}
     </div>
   );
 };

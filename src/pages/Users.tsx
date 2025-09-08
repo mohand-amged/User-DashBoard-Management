@@ -11,6 +11,7 @@ import {
 import type { User, UserFormData } from '../types/user';
 import { useUsers } from '../hooks/useUsers';
 import { useToast } from '../contexts/ToastContext';
+import { useNotifications } from '../contexts/NotificationContext';
 import { Button } from '../components/ui/Button';
 import { Modal, ModalBody, ModalFooter } from '../components/ui/Modal';
 import { 
@@ -48,6 +49,7 @@ export const Users: React.FC = (_className) => {
   }, [location.state]);
 
   const { success } = useToast();
+  const { addNotification } = useNotifications();
   
   const {
     users,
@@ -72,6 +74,16 @@ export const Users: React.FC = (_className) => {
     if (result) {
       setShowUserForm(false);
       setEditingUser(null);
+      
+      // Add notification
+      addNotification({
+        type: 'success',
+        title: 'New Employee Added',
+        message: `${userData.name} has been successfully added to the system.`,
+        time: 'Just now',
+        read: false,
+        icon: <Plus className="h-4 w-4" />
+      });
     }
   };
 
@@ -83,6 +95,16 @@ export const Users: React.FC = (_className) => {
     if (result) {
       setShowUserForm(false);
       setEditingUser(null);
+      
+      // Add notification
+      addNotification({
+        type: 'info',
+        title: 'Employee Updated',
+        message: `${userData.name}'s information has been successfully updated.`,
+        time: 'Just now',
+        read: false,
+        icon: <Edit2 className="h-4 w-4" />
+      });
     }
   };
 
@@ -90,10 +112,21 @@ export const Users: React.FC = (_className) => {
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
     
+    const userName = userToDelete.name;
     const result = await deleteUser(userToDelete.id);
     if (result) {
       setShowDeleteDialog(false);
       setUserToDelete(null);
+      
+      // Add notification
+      addNotification({
+        type: 'warning',
+        title: 'Employee Removed',
+        message: `${userName} has been removed from the system.`,
+        time: 'Just now',
+        read: false,
+        icon: <Trash2 className="h-4 w-4" />
+      });
     }
   };
 
@@ -101,9 +134,20 @@ export const Users: React.FC = (_className) => {
   const handleBulkDelete = async () => {
     if (selectedUsers.length === 0) return;
     
+    const userCount = selectedUsers.length;
     const result = await deleteUsers(selectedUsers);
     if (result) {
       setSelectedUsers([]);
+      
+      // Add notification
+      addNotification({
+        type: 'warning',
+        title: 'Bulk Deletion Complete',
+        message: `${userCount} employee${userCount > 1 ? 's' : ''} removed from the system.`,
+        time: 'Just now',
+        read: false,
+        icon: <Trash2 className="h-4 w-4" />
+      });
     }
   };
 

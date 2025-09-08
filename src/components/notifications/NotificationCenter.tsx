@@ -1,56 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, Users, DollarSign, TrendingUp, Award, CheckCircle } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
-
-interface Notification {
-  id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  icon?: React.ReactNode;
-}
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'success',
-    title: 'New Employee Added',
-    message: 'Sarah Johnson has been successfully added to the system.',
-    time: '2 minutes ago',
-    read: false,
-    icon: <Users className="h-5 w-5" />
-  },
-  {
-    id: '2',
-    type: 'info',
-    title: 'Salary Review Completed',
-    message: 'Annual salary review for Engineering department completed.',
-    time: '1 hour ago',
-    read: false,
-    icon: <DollarSign className="h-5 w-5" />
-  },
-  {
-    id: '3',
-    type: 'success',
-    title: 'Performance Milestone',
-    message: 'Team productivity increased by 15% this quarter.',
-    time: '3 hours ago',
-    read: true,
-    icon: <TrendingUp className="h-5 w-5" />
-  },
-  {
-    id: '4',
-    type: 'info',
-    title: 'New High Achiever',
-    message: '3 employees qualified for performance bonuses.',
-    time: '1 day ago',
-    read: true,
-    icon: <Award className="h-5 w-5" />
-  }
-];
+import { useNotifications, type Notification } from '../../contexts/NotificationContext';
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -58,48 +10,13 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose }) => {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-
-  // Simulate real-time notifications
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const interval = setInterval(() => {
-      const newNotification: Notification = {
-        id: Date.now().toString(),
-        type: 'success',
-        title: 'Real-time Update',
-        message: 'System data has been synchronized successfully.',
-        time: 'Just now',
-        read: false,
-        icon: <CheckCircle className="h-5 w-5" />
-      };
-
-      setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
-    }, 30000); // Add notification every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [isOpen]);
-
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
-
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    removeNotification 
+  } = useNotifications();
 
   const getTypeStyles = (type: Notification['type']) => {
     switch (type) {

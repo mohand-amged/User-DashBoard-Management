@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, Sun, Moon, Bell, Settings, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useNotifications } from '../../contexts/NotificationContext';
 import { Button } from '../ui/Button';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 
@@ -12,6 +13,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { unreadCount } = useNotifications();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -64,11 +66,14 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             size="icon"
             onClick={() => setShowNotifications(true)}
             className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 relative"
+            title={`${unreadCount} unread notifications`}
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white animate-pulse">
-              2
-            </span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-semibold text-white animate-pulse">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Button>
 
           {/* User menu */}

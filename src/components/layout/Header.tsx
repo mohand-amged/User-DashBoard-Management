@@ -3,7 +3,6 @@ import { Menu, Sun, Moon, Bell, Settings, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../ui/Button';
-import { cn } from '../../lib/utils';
 
 interface HeaderProps {
   onMenuClick: () => void;

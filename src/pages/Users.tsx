@@ -26,7 +26,7 @@ import {
 import { Pagination, PaginationInfo, PaginationContainer } from '../components/ui/Pagination';
 import { UserForm } from '../components/features/UserForm';
 import { LoadingOverlay } from '../components/ui/Loading';
-import { cn, formatDate, downloadCSV, downloadJSON } from '../lib/utils';
+import { cn, formatDate, downloadCSV } from '../lib/utils';
 
 export const Users: React.FC = (_className) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,21 +37,18 @@ export const Users: React.FC = (_className) => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { success, error: showError } = useToast();
+  const { success } = useToast();
   
   const {
     users,
     loading,
-    error,
     pagination,
     filters,
-    fetchUsers,
     createUser,
     updateUser,
     deleteUser,
     deleteUsers,
     setPage,
-    setLimit,
     setFilters,
     resetFilters,
     searchUsers,
@@ -145,10 +142,6 @@ export const Users: React.FC = (_className) => {
     success('Export Complete', 'Users exported to CSV successfully');
   }, [users, success]);
 
-  const handleExportJSON = useCallback(() => {
-    downloadJSON(users, 'users');
-    success('Export Complete', 'Users exported to JSON successfully');
-  }, [users, success]);
 
   // Filter handlers
   const handleRoleFilter = (role: string) => {

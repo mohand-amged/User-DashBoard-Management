@@ -11,7 +11,7 @@ interface PaginationProps {
   showPrevNext?: boolean;
   maxVisible?: number;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'default' | 'lg';
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -22,7 +22,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   showPrevNext = true,
   maxVisible = 5,
   className,
-  size = 'md',
+  size = 'default',
 }) => {
   if (totalPages <= 1) return null;
 
@@ -47,9 +47,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   const canGoNext = currentPage < totalPages;
 
   const sizeClasses = {
-    sm: 'h-8 px-2 text-xs',
-    md: 'h-9 px-3 text-sm',
-    lg: 'h-10 px-4 text-sm',
+    sm: 'h-9 px-3 text-xs',
+    default: 'h-10 px-4 text-sm',
+    lg: 'h-11 px-8 text-sm',
   };
 
   return (
@@ -150,7 +150,6 @@ interface PaginationInfoProps {
 
 export const PaginationInfo: React.FC<PaginationInfoProps> = ({
   currentPage,
-  totalPages,
   totalItems,
   itemsPerPage,
   className,

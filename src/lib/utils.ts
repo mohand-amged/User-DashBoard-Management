@@ -141,7 +141,6 @@ export function validateURL(url: string): boolean {
 
 // Avatar utilities
 export function generateAvatarUrl(name: string): string {
-  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase()
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3b82f6&color=fff&bold=true`
 }
 

@@ -1,0 +1,256 @@
+import React, { useState, useEffect } from 'react';
+import { Users, UserPlus, Activity, TrendingUp } from 'lucide-react';
+import { useUsers } from '../hooks/useUsers';
+import { LoadingSkeleton } from '../components/ui/Loading';
+import { cn } from '../lib/utils';
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: string;
+  trend?: 'up' | 'down';
+  icon: React.ReactNode;
+  color?: 'blue' | 'green' | 'purple' | 'orange';
+}
+
+const StatCard: React.FC<StatCardProps> = ({ 
+  title, 
+  value, 
+  change, 
+  trend, 
+  icon, 
+  color = 'blue' 
+}) => {
+  const colorClasses = {
+    blue: 'bg-blue-500',
+    green: 'bg-green-500', 
+    purple: 'bg-purple-500',
+    orange: 'bg-orange-500',
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            {title}
+          </p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            {value}
+          </p>
+          {change && (
+            <p className={cn(
+              'text-sm font-medium',
+              trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+            )}>
+              {trend === 'up' ? '+' : ''}{change}
+            </p>
+          )}
+        </div>
+        <div className={cn(
+          'h-12 w-12 rounded-lg flex items-center justify-center text-white',
+          colorClasses[color]
+        )}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const Dashboard: React.FC = () => {
+  const { users, loading, pagination } = useUsers();
+  const [lastUpdated, setLastUpdated] = useState<string>(() => new Date().toLocaleString());
+
+  // Update last updated time periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastUpdated(new Date().toLocaleString());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate stats
+  const totalUsers = pagination.totalItems;
+  const activeUsers = users.filter(u => u.status === 'active').length;
+  const adminUsers = users.filter(u => u.role === 'admin').length;
+  const recentUsers = users.filter(u => {
+    if (!u.createdAt) return false;
+    const created = new Date(u.createdAt);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return created > weekAgo;
+  }).length;
+
+  const stats = [
+    {
+      title: 'Total Users',
+      value: totalUsers,
+      change: '+12%',
+      trend: 'up' as const,
+      icon: <Users className="h-6 w-6" />,
+      color: 'blue' as const,
+    },
+    {
+      title: 'Active Users',
+      value: activeUsers,
+      change: '+5%',
+      trend: 'up' as const,
+      icon: <Activity className="h-6 w-6" />,
+      color: 'green' as const,
+    },
+    {
+      title: 'Admin Users',
+      value: adminUsers,
+      icon: <TrendingUp className="h-6 w-6" />,
+      color: 'purple' as const,
+    },
+    {
+      title: 'New This Week',
+      value: recentUsers,
+      change: '+8%',
+      trend: 'up' as const,
+      icon: <UserPlus className="h-6 w-6" />,
+      color: 'orange' as const,
+    },
+  ];
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Welcome back! Here's what's happening with your users.
+          </p>
+        </div>
+        <div className="mt-4 sm:mt-0">
+          <span className="text-sm text-slate-500 dark:text-slate-400">
+            Last updated: {lastUpdated}
+          </span>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <LoadingSkeleton className="h-4 w-24" />
+                  <LoadingSkeleton className="h-8 w-16" />
+                  <LoadingSkeleton className="h-4 w-12" />
+                </div>
+                <LoadingSkeleton className="h-12 w-12 rounded-lg" />
+              </div>
+            </div>
+          ))
+        ) : (
+          stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))
+        )}
+      </div>
+
+      {/* Quick Actions and Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Quick Actions */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+            Quick Actions
+          </h2>
+          <div className="space-y-3">
+            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+              <UserPlus className="h-5 w-5 text-blue-600 mr-3" />
+              <div>
+                <div className="font-medium text-slate-900 dark:text-slate-100">
+                  Add New User
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Create a new user account
+                </div>
+              </div>
+            </button>
+            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+              <Activity className="h-5 w-5 text-green-600 mr-3" />
+              <div>
+                <div className="font-medium text-slate-900 dark:text-slate-100">
+                  View User Activity
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Monitor user engagement
+                </div>
+              </div>
+            </button>
+            <button className="w-full flex items-center p-3 text-left bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
+              <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+              <div>
+                <div className="font-medium text-slate-900 dark:text-slate-100">
+                  View Analytics
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Analyze user trends
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Recent Users */}
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+            Recent Users
+          </h2>
+          <div className="space-y-4">
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <LoadingSkeleton className="h-8 w-8 rounded-full" />
+                  <div className="flex-1 space-y-1">
+                    <LoadingSkeleton className="h-4 w-32" />
+                    <LoadingSkeleton className="h-3 w-24" />
+                  </div>
+                  <LoadingSkeleton className="h-4 w-16" />
+                </div>
+              ))
+            ) : users.slice(0, 5).map((user) => (
+              <div key={user.id} className="flex items-center space-x-3">
+                <img
+                  className="h-8 w-8 rounded-full"
+                  src={user.avatar}
+                  alt={user.name}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
+                    {user.email}
+                  </p>
+                </div>
+                <span className={cn(
+                  'inline-flex px-2 py-1 text-xs font-medium rounded-full',
+                  user.status === 'active' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
+                )}>
+                  {user.status}
+                </span>
+              </div>
+            ))}
+            {!loading && users.length === 0 && (
+              <p className="text-center text-slate-500 dark:text-slate-400 py-4">
+                No users found
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

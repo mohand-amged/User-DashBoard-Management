@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
-  Search, 
   Plus, 
   Download, 
   Edit2, 
@@ -13,7 +12,6 @@ import type { User, UserFormData } from '../types/user';
 import { useUsers } from '../hooks/useUsers';
 import { useToast } from '../contexts/ToastContext';
 import { Button } from '../components/ui/Button';
-import { Input, Select } from '../components/ui/Input';
 import { Modal, ModalBody, ModalFooter } from '../components/ui/Modal';
 import { 
   Table, 
@@ -26,13 +24,17 @@ import {
 } from '../components/ui/Table';
 import { Pagination, PaginationInfo, PaginationContainer } from '../components/ui/Pagination';
 import { UserForm } from '../components/features/UserForm';
+import { UserFiltersPanel } from '../components/features/UserFilters';
 import { LoadingOverlay } from '../components/ui/Loading';
-import { cn, formatDate, downloadCSV } from '../lib/utils';
+import { cn, formatDate, downloadCSV, getActiveFiltersCount } from '../lib/utils';
 
 export const Users: React.FC = (_className) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showUserForm, setShowUserForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
   const location = useLocation();
 
   // Auto-open add form if navigated from dashboard quick action
@@ -44,15 +46,12 @@ export const Users: React.FC = (_className) => {
       window.history.replaceState(null, '');
     }
   }, [location.state]);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
 
   const { success } = useToast();
   
   const {
     users,
+    allUsers,
     loading,
     pagination,
     filters,
@@ -63,17 +62,9 @@ export const Users: React.FC = (_className) => {
     setPage,
     setFilters,
     resetFilters,
-    searchUsers,
   } = useUsers({
     initialLimit: 10,
   });
-
-  // Handle search
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    searchUsers(value);
-  };
 
   // Handle user creation
   const handleCreateUser = async (userData: UserFormData) => {
@@ -157,20 +148,14 @@ export const Users: React.FC = (_className) => {
     success('Export Complete', 'Users exported to CSV successfully');
   }, [users, success]);
 
-
-  // Filter handlers
-  const handleRoleFilter = (role: string) => {
-    setFilters({ role });
-  };
-
-  const handleStatusFilter = (status: string) => {
-    setFilters({ status });
-  };
-
+  // Sort handler
   const handleSort = (field: keyof User) => {
     const newOrder = filters.sortBy === field && filters.sortOrder === 'asc' ? 'desc' : 'asc';
     setFilters({ sortBy: field, sortOrder: newOrder });
   };
+
+  // Get active filters count for display
+  const activeFiltersCount = getActiveFiltersCount(filters);
 
   const isAllSelected = users.length > 0 && selectedUsers.length === users.length;
   const isSomeSelected = selectedUsers.length > 0 && selectedUsers.length < users.length;
@@ -182,9 +167,18 @@ export const Users: React.FC = (_className) => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             Users
+            {activeFiltersCount > 0 && (
+              <span className="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                {activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''}
+              </span>
+            )}
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Manage user accounts and permissions
+            {pagination.totalItems > 0 ? (
+              <>Showing {users.length} of {pagination.totalItems} users</>
+            ) : (
+              'Manage user accounts and permissions'
+            )}
           </p>
         </div>
         
@@ -192,10 +186,18 @@ export const Users: React.FC = (_className) => {
           <Button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}
-            className="sm:hidden"
+            className={cn(
+              "sm:hidden",
+              activeFiltersCount > 0 && "bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-300"
+            )}
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters
+            {activeFiltersCount > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white">
+                {activeFiltersCount}
+              </span>
+            )}
           </Button>
           
           <Button
@@ -220,57 +222,33 @@ export const Users: React.FC = (_className) => {
         </div>
       </div>
 
-      {/* Filters and Search */}
-      <div className={cn(
-        'bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4',
-        showFilters ? 'block' : 'hidden sm:block'
-      )}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="lg:col-span-2">
-            <Input
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={handleSearch}
-              icon={<Search />}
-            />
-          </div>
-          
-          <Select
-            label="Role"
-            value={filters.role || 'all'}
-            onChange={(e) => handleRoleFilter(e.target.value)}
-            options={[
-              { value: 'all', label: 'All Roles' },
-              { value: 'admin', label: 'Admin' },
-              { value: 'manager', label: 'Manager' },
-              { value: 'user', label: 'User' },
-            ]}
-          />
-          
-          <Select
-            label="Status"
-            value={filters.status || 'all'}
-            onChange={(e) => handleStatusFilter(e.target.value)}
-            options={[
-              { value: 'all', label: 'All Status' },
-              { value: 'active', label: 'Active' },
-              { value: 'inactive', label: 'Inactive' },
-            ]}
-          />
-        </div>
+      {/* Enhanced Filters */}
+      <UserFiltersPanel
+        filters={filters}
+        onFiltersChange={setFilters}
+        onResetFilters={resetFilters}
+        users={allUsers}
+        isVisible={showFilters}
+        onToggleVisibility={() => setShowFilters(!showFilters)}
+      />
 
-        {/* Active filters and actions */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-slate-600 dark:text-slate-400">
-            {pagination.totalItems} users found
-            {selectedUsers.length > 0 && (
-              <span className="ml-4">
-                {selectedUsers.length} selected
-              </span>
-            )}
-          </div>
+      {/* Results Summary and Bulk Actions */}
+      {(selectedUsers.length > 0 || activeFiltersCount > 0) && (
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
+              {activeFiltersCount > 0 && (
+                <span>
+                  {pagination.totalItems} result{pagination.totalItems !== 1 ? 's' : ''} found
+                </span>
+              )}
+              {selectedUsers.length > 0 && (
+                <span className="ml-4 font-medium text-slate-900 dark:text-slate-100">
+                  {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
+                </span>
+              )}
+            </div>
 
-          <div className="flex items-center space-x-2">
             {selectedUsers.length > 0 && (
               <Button
                 variant="destructive"
@@ -279,20 +257,12 @@ export const Users: React.FC = (_className) => {
                 disabled={loading}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete Selected
+                Delete Selected ({selectedUsers.length})
               </Button>
             )}
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetFilters}
-            >
-              Clear Filters
-            </Button>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Users Table */}
       <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">

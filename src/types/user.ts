@@ -55,6 +55,21 @@ export interface UserFilters {
   search: string;
   role: string;
   status: string;
+  hasSalary: string;
+  salaryMin: number | '';
+  salaryMax: number | '';
+  company: string;
+  jobTitle: string;
+  city: string;
+  createdAfter: string;
+  createdBefore: string;
   sortBy: keyof User;
   sortOrder: 'asc' | 'desc';
+}
+
+export interface FilterPreset {
+  id: string;
+  name: string;
+  filters: Partial<UserFilters>;
+  icon?: string;
 }

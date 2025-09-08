@@ -66,14 +66,17 @@ export function removeLocalStorage(key: string): void {
 export function filterUsers(users: User[], filters: Partial<UserFilters>): User[] {
   let filtered = [...users]
 
-  // Search filter
+  // Search filter - enhanced to include more fields
   if (filters.search) {
     const search = filters.search.toLowerCase()
     filtered = filtered.filter(user => 
       user.name.toLowerCase().includes(search) ||
       user.email.toLowerCase().includes(search) ||
       user.username.toLowerCase().includes(search) ||
-      user.company.name.toLowerCase().includes(search)
+      user.jobTitle.toLowerCase().includes(search) ||
+      user.company.name.toLowerCase().includes(search) ||
+      user.address.city.toLowerCase().includes(search) ||
+      user.phone.includes(search)
     )
   }
 
@@ -85,6 +88,63 @@ export function filterUsers(users: User[], filters: Partial<UserFilters>): User[
   // Status filter
   if (filters.status && filters.status !== 'all') {
     filtered = filtered.filter(user => user.status === filters.status)
+  }
+
+  // Salary status filter
+  if (filters.hasSalary && filters.hasSalary !== 'all') {
+    if (filters.hasSalary === 'yes') {
+      filtered = filtered.filter(user => user.hasSalary)
+    } else if (filters.hasSalary === 'no') {
+      filtered = filtered.filter(user => !user.hasSalary)
+    }
+  }
+
+  // Salary range filter
+  if (filters.salaryMin !== '' && filters.salaryMin !== undefined) {
+    filtered = filtered.filter(user => user.hasSalary && user.salary >= Number(filters.salaryMin))
+  }
+  if (filters.salaryMax !== '' && filters.salaryMax !== undefined) {
+    filtered = filtered.filter(user => user.hasSalary && user.salary <= Number(filters.salaryMax))
+  }
+
+  // Company filter
+  if (filters.company && filters.company.trim() !== '') {
+    const company = filters.company.toLowerCase()
+    filtered = filtered.filter(user => 
+      user.company.name.toLowerCase().includes(company)
+    )
+  }
+
+  // Job title filter
+  if (filters.jobTitle && filters.jobTitle.trim() !== '') {
+    const jobTitle = filters.jobTitle.toLowerCase()
+    filtered = filtered.filter(user => 
+      user.jobTitle.toLowerCase().includes(jobTitle)
+    )
+  }
+
+  // City filter
+  if (filters.city && filters.city.trim() !== '') {
+    const city = filters.city.toLowerCase()
+    filtered = filtered.filter(user => 
+      user.address.city.toLowerCase().includes(city)
+    )
+  }
+
+  // Date range filters
+  if (filters.createdAfter && filters.createdAfter.trim() !== '') {
+    const afterDate = new Date(filters.createdAfter)
+    filtered = filtered.filter(user => {
+      if (!user.createdAt) return false
+      return new Date(user.createdAt) >= afterDate
+    })
+  }
+  if (filters.createdBefore && filters.createdBefore.trim() !== '') {
+    const beforeDate = new Date(filters.createdBefore)
+    filtered = filtered.filter(user => {
+      if (!user.createdAt) return false
+      return new Date(user.createdAt) <= beforeDate
+    })
   }
 
   // Sorting
@@ -188,3 +248,32 @@ export function downloadCSV(data: any[], filename: string): void {
   
   URL.revokeObjectURL(url)
 }
+
+// Filter utilities
+export function getActiveFiltersCount(filters: Partial<UserFilters>): number {
+  let count = 0
+  
+  if (filters.search && filters.search.trim() !== '') count++
+  if (filters.role && filters.role !== 'all') count++
+  if (filters.status && filters.status !== 'all') count++
+  if (filters.hasSalary && filters.hasSalary !== 'all') count++
+  if (filters.salaryMin !== '' && filters.salaryMin !== undefined) count++
+  if (filters.salaryMax !== '' && filters.salaryMax !== undefined) count++
+  if (filters.company && filters.company.trim() !== '') count++
+  if (filters.jobTitle && filters.jobTitle.trim() !== '') count++
+  if (filters.city && filters.city.trim() !== '') count++
+  if (filters.createdAfter && filters.createdAfter.trim() !== '') count++
+  if (filters.createdBefore && filters.createdBefore.trim() !== '') count++
+  
+  return count
+}
+
+export function getUniqueValues(users: User[], field: string): string[] {
+  const values = users.map(user => {
+    const value = getNestedValue(user, field)
+    return value ? String(value) : ''
+  }).filter(Boolean)
+  
+  return [...new Set(values)].sort()
+}
+

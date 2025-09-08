@@ -12,6 +12,7 @@ interface UseUsersOptions {
 
 interface UseUsersReturn {
   users: User[];
+  allUsers: User[];
   loading: boolean;
   error: string | null;
   pagination: {
@@ -43,6 +44,14 @@ const defaultFilters: UserFilters = {
   search: '',
   role: 'all',
   status: 'all',
+  hasSalary: 'all',
+  salaryMin: '',
+  salaryMax: '',
+  company: '',
+  jobTitle: '',
+  city: '',
+  createdAfter: '',
+  createdBefore: '',
   sortBy: 'name',
   sortOrder: 'asc',
 };
@@ -258,6 +267,7 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
 
   return {
     users,
+    allUsers,
     loading,
     error,
     pagination: {
